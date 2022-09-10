@@ -1,21 +1,30 @@
 # -*- coding: utf-8 -*-
 
 # define global variables
-SUBJECTS = ["język polski", "polski", "język niemiecki", "niemiecki",
+SUBJECTS = ("język polski", "polski", "język niemiecki", "niemiecki",
             "angielski", "język angielski", "matematyka",  "biologia",
-            "historia", "muzyka", "technika", "plastyka", "wf", "wos",
-            "informatyka", "religia", "etyka", "geografia"]
+            "chemia", "historia", "muzyka", "technika", "plastyka",
+            "wf", "wychowanie fizyczne", "wos", "fizyka", "informatyka",
+            "religia", "etyka", "geografia")
+
+students = []
+tutors = []
+class_tutors = []
+classes = set()
 
 # define classes
 
-# %% WYCHOWAWCA
+# %% ClassTutor
 
 
-class Wychowawca:
+class ClassTutor:
 
     def __init__(self):
-        self.name = None
-        self.school_class = None
+        self.name = ""
+        self.school_class = ""
+
+    def __repr__(self):
+        return self.name
 
     def set_attrs(self):
 
@@ -50,15 +59,18 @@ class Wychowawca:
         self.name = name
         self.school_class = school_class
 
-# %% NAUCZYCIEL
+# %% Tutor
 
 
-class Nauczyciel:
+class Tutor:
 
-    def __init__(self, name, subjects, classes):
-        self.name = None
+    def __init__(self):
+        self.name = ""
         self.subjects = []
         self.classes = []
+
+    def __repr__(self):
+        return self.name
 
     def set_attrs(self):
 
@@ -79,8 +91,8 @@ class Nauczyciel:
             if subject == "exit":
                 break
             elif subject == "przedmioty":
-                for i in SUBJECTS:
-                    print(i)
+                print("Dostępne przedmioty:\n"
+                      f"{', '.join(SUBJECTS)}")
             elif subject not in SUBJECTS:
                 print("Brak przedmiotu na liście dostępnych przedmiotów.\n"
                       "/aby wyświetlić listę dostępnych przedmitów wpisz "
@@ -123,14 +135,17 @@ class Nauczyciel:
         self.subjects = tutor_subjects
         self.classes = classes
 
-# %% UCZEN
+# %% Student
 
 
-class Uczen:
+class Student:
 
-    def __init__(self, name, school_class):
-        self.name = None
-        self.school_class = None
+    def __init__(self):
+        self.name = ""
+        self.school_class = ""
+
+    def __repr__(self):
+        return self.name
 
     def set_attrs(self):
 
@@ -163,7 +178,142 @@ class Uczen:
                      f"które zostanie przypisane do klasy {school_class}: ")
         name = name.title()
 
+        classes.add(school_class)
+
         self.name = name
         self.school_class = school_class
 
+# define functions
+
+# %% CREATE_PERSON()
+
+
+def create_person():
+
+    while True:
+        command = input("Podaj komendę (uczen/nauczyciel/wychowawca/exit): ")
+        command = ''.join(filter(str.isalpha, command)).lower()
+
+        if command == "exit":
+            break
+        elif command == "uczen":
+            obj = Student()
+            obj.set_attrs()
+            students.append(obj)
+        elif command == "nauczyciel":
+            obj = Tutor()
+            obj.set_attrs()
+            tutors.append(obj)
+        elif command == "wychowawca":
+            obj = ClassTutor()
+            obj.set_attrs()
+            class_tutors.append(obj)
+        else:
+            print("Niepoprawna komenda!\n")
+            pass
+
+
+# %% DISPLAY()
+
+
+def display():
+
+    while True:
+        command = input("Dozwolone komendy: 'klasa', 'wychowawca', "
+                        "'nauczyciel', 'uczen', 'exit'.\nWybierz typ obiektu, "
+                        "który chcesz wyświetlić: ")
+        command = ''.join(filter(str.isalpha, command)).lower()
+
+        if command == "exit":
+            break
+        elif command == "klasa":
+            class_id = input("Podaj nazwę klasy: ")
+
+            if class_id in classes:
+                for tutor in class_tutors:
+                    if tutor.school_class == class_id:
+                        print(f"Wychowawca: {tutor}")
+                for student in students:
+                    if student.school_class == class_id:
+                        print(f"Uczeń: {student}")
+            else:
+                print("Ta klasa nie ma określonego wychowawcy.")
+
+        elif command == "wychowawca":
+            name = input("Podaj imię i nazwisko wychowowcy: ")
+            name = name.title()
+            class_name = None
+
+            for class_tutor in class_tutors:
+                if class_tutor.name == name:
+                    class_name = class_tutor.school_class
+                    break
+
+            for student in students:
+                if student.school_class == class_name:
+                    print(f"Uczeń: {student}")
+
+        elif command == "nauczyciel":
+            name = input("Podaj imię i nazwisko nauczyciela: ")
+            name = name.title()
+            tutor_classes = None
+
+            for tutor in tutors:
+                if tutor.name == name:
+                    tutor_classes = tutor.classes
+                    break
+
+            for class_tutor in class_tutors:
+                if class_tutor.school_class in tutor_classes:
+                    print(f"Wychowawca: {class_tutor} klasy: "
+                          f"{class_tutor.school_class}")
+
+        elif command == "uczen":
+            name = input("Podaj imię i nazwisko ucznia: ")
+            name = name.title()
+            class_name = None
+
+            for student in students:
+                if student.name == name:
+                    class_name = student.school_class
+                    break
+
+            if not class_name:
+                print("Nie znaleziono ucznia o takich danych w tej klasie.")
+                continue
+
+            for tutor in tutors:
+                if class_name in tutor.classes:
+                    print(f"Nauczyciel: {tutor}, przedmioty: "
+                          f"{', '.join(tutor.subjects)}")
+        else:
+            print("Niepoprawna komenda!\n")
+            pass
+
+
+# %% MAIN LOOP
+
+while True:
+    command = input("Podaj komendę (tworz/wyswietl/exit): ")
+    command = ''.join(filter(str.isalpha, command)).lower()
+
+    if command == "exit":
+        break
+    elif command == "tworz":
+        create_person()
+    elif command == "wyswietl":
+        display()
+    else:
+        print("Niepoprawna komenda!\n"
+              "Dozwolone komendy to 'tworz', 'wyswietl', 'exit'.")
+        pass
+
 # %%
+
+'''
++ dodać .title itp
++ poprawić nazwy obiektów
++ poprawić printy
+dodac jeśli nie znajdzie czegoś
+obejrzeć końcówkę nagrania
+'''
