@@ -103,22 +103,22 @@ class Tutor:
 
         while True:
             print("/aby zakończyć wprowadzanie klas wpisz 'exit'/")
-            user_input = input("Wprowadź oznaczenia klas, "
-                               f"które uczy nauczyciel {name}: ")
-            user_input = ''.join(filter(str.isalnum, user_input)).upper()
+            class_id = input("Wprowadź oznaczenia klas, "
+                             f"które uczy nauczyciel {name}: ")
+            class_id = ''.join(filter(str.isalnum, class_id)).upper()
 
-            if user_input == "EXIT":
+            if class_id == "EXIT":
                 break
-            elif 1 <= len(user_input) <= 2:
-                if len(user_input) == 1:
-                    if user_input[0].isnumeric():
-                        classes.append(user_input)
+            elif 1 <= len(class_id) <= 2:
+                if len(class_id) == 1:
+                    if class_id[0].isnumeric():
+                        classes.append(class_id)
                     else:
                         print("Jednoznakowe oznaczenie klasy musi być liczbą.")
                         pass
-                elif len(user_input) == 2:
-                    if user_input[0].isnumeric() and user_input[1].isalpha():
-                        classes.append(user_input)
+                elif len(class_id) == 2:
+                    if class_id[0].isnumeric() and class_id[1].isalpha():
+                        classes.append(class_id)
                     else:
                         print("Dwuznakowe oznaczenie klasy musi być w formacie"
                               " liczby z literą np. '2A'.")
@@ -227,7 +227,31 @@ def display():
         if command == "exit":
             break
         elif command == "klasa":
-            class_id = input("Podaj nazwę klasy: ")
+
+            while True:
+                class_id = input("Podaj nazwę klasy: ")
+                class_id = ''.join(filter(str.isalnum, class_id)).upper()
+
+                if 1 <= len(class_id) <= 2:
+                    if len(class_id) == 1:
+                        if class_id[0].isnumeric() is False:
+                            print("Jednoznakowe oznaczenie klasy musi "
+                                  "być cyfrą.")
+                            pass
+                        else:
+                            break
+                    elif len(class_id) == 2:
+                        if (class_id[0].isnumeric() is False or
+                                class_id[1].isalpha() is False):
+                            print("Dwuznakowe oznaczenie klasy musi być "
+                                  "w formacie cyfry z literą np. '2A'.")
+                            pass
+                        else:
+                            break
+                else:
+                    print("Oznaczenie klasy musi być w formacie samej liczby "
+                          "np. '2' lub liczby z literą np. '2A'.")
+                    pass
 
             if class_id in classes:
                 for tutor in class_tutors:
@@ -249,6 +273,10 @@ def display():
                     class_name = class_tutor.school_class
                     break
 
+            if not class_name:
+                print("Nie znaleziono takiego wychowawcy.")
+                continue
+
             for student in students:
                 if student.school_class == class_name:
                     print(f"Uczeń: {student}")
@@ -263,10 +291,14 @@ def display():
                     tutor_classes = tutor.classes
                     break
 
+            if not tutor_classes:
+                print("Nie znaleziono takiego nauczyciela.")
+                continue
+
             for class_tutor in class_tutors:
                 if class_tutor.school_class in tutor_classes:
-                    print(f"Wychowawca: {class_tutor} klasy: "
-                          f"{class_tutor.school_class}")
+                    print(f"Wychowawca klasy {class_tutor.school_class}: "
+                          f"{class_tutor}")
 
         elif command == "uczen":
             name = input("Podaj imię i nazwisko ucznia: ")
@@ -279,7 +311,7 @@ def display():
                     break
 
             if not class_name:
-                print("Nie znaleziono ucznia o takich danych w tej klasie.")
+                print("Nie znaleziono ucznia o takich danych.")
                 continue
 
             for tutor in tutors:
@@ -309,11 +341,3 @@ while True:
         pass
 
 # %%
-
-'''
-+ dodać .title itp
-+ poprawić nazwy obiektów
-+ poprawić printy
-dodac jeśli nie znajdzie czegoś
-obejrzeć końcówkę nagrania
-'''
